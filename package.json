@@ -1,0 +1,16 @@
+{
+  "name": "taskpluspro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TaskPlusPro web application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
