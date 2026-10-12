@@ -13,6 +13,53 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+app.get("/api/auth-check", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || "";
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : "";
+
+    if (!token) {
+      return res.status(401).json({
+        ok: false,
+        message: "Sign in first."
+      });
+    }
+
+    const { createClient } = require("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.TPP_SUPABASE_URL,
+      process.env.TPP_SUPABASE_ANON_KEY,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      }
+    );
+
+    const { data, error } = await supabase.auth.getUser(token);
+
+    if (error || !data.user) {
+      return res.status(401).json({
+        ok: false,
+        message: "Your session is invalid or expired."
+      });
+    }
+
+    return res.json({
+      ok: true,
+      authenticated: true
+    });
+  } catch {
+    return res.status(500).json({
+      ok: false,
+      message: "Authentication check failed."
+    });
+ 
+  }
+});
 // Public Supabase configuration
 // Only expose the project URL and publishable/anon key.
 app.get("/api/config", (_req, res) => {
