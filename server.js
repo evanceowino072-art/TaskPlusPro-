@@ -30,6 +30,90 @@ const supabaseAdmin = createClient(
 
 app.post("/api/mpesa/stk-push", async (req, res) => {
   try {
+app.post("/api/mpesa/callback", async (req, res) => {
+  // Acknowledge the callback, but do not trust it as proof of payment.
+  try {
+    const callback = req.body?.Body?.stkCallback;
+
+    if (!callback?.CheckoutRequestID) {
+      return res.status(400).json({
+        ResultCode: 1,
+        ResultDesc: "Invalid callback payload"
+      });
+    }
+
+    const resultCode = Number(callback.ResultCode);
+    const description = String(
+      callback.ResultDesc || "M-Pesa callback received"
+    ).slice(0, 250);
+
+    const metadata = callback.CallbackMetadata?.Item || [];
+    const receipt = metadata.find(
+      (item) => item.Name === "MpesaReceiptNumber"
+    )?.Value;
+
+    const { data: attempt, error: lookupError } =
+      await supabaseAdmin
+        .from("membership_payment_attempts")
+        .select("id, status")
+        .eq("checkout_request_id", callback.CheckoutRequestID)
+        .eq("environment", "sandbox")
+        .maybeSingle();
+
+    if (lookupError) {
+      console.error("Could not look up payment attempt.");
+      return res.status(500).json({
+        ResultCode: 1,
+        ResultDesc: "Payment lookup failed"
+      });
+    }
+
+    if (!attempt) {
+      console.warn("Callback received for an unknown checkout.");
+      return res.json({
+        ResultCode: 0,
+        ResultDesc: "Callback received"
+      });
+    }
+
+    // Store the callback result only. Verification is a separate step.
+    const { error: updateError } = await supabaseAdmin
+      .from("membership_payment_attempts")
+      .update({
+        status: resultCode === 0 ? "callback_received" : "failed",
+        callback_result_code: resultCode,
+        callback_result_description: description,
+        mpesa_receipt_number:
+          resultCode === 0 && typeof receipt === "string"
+            ? receipt
+            : null,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", attempt.id)
+      .eq("environment", "sandbox")
+      .in("status", ["pending", "callback_received"]);
+
+    if (updateError) {
+      console.error("Could not save callback result.");
+      return res.status(500).json({
+        ResultCode: 1,
+        ResultDesc: "Callback could not be saved"
+      });
+    }
+
+    return res.json({
+      ResultCode: 0,
+      ResultDesc: "Callback received"
+    });
+  } catch {
+    console.error("M-Pesa callback processing failed.");
+    return res.status(500).json({
+      ResultCode: 1,
+      ResultDesc: "Callback processing failed"
+    })
+      ;
+  }
+});
     // Enforce Sandbox mode and a fixed KES 1 test amount.
     if (process.env.MPESA_ENV !== "sandbox") {
       return res.status(503).json({
