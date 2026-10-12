@@ -3,7 +3,7 @@ const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+app.use(express.json({ limit: "10kb" }));
 // Health check
 app.get("/api/health", (_req, res) => {
   res.json({
