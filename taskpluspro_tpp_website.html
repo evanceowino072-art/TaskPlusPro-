@@ -44,8 +44,12 @@ function renderTasks(cat='All'){document.getElementById('tasklist').innerHTML=ta
 function filterTasks(cat,el){document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderTasks(cat)}
 function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
 function toast(s){let t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-function copyCode(){
-const referralLink = "${window.location.origin}/register?ref=TPP-MEMBER-20";
+WritingBlock id="62184" variant="standard">function copyCode(){
+const referralLink = $DIL0/register?ref=TPP-MEMBER-20;
+navigator.clipboard.writeText(referralLink)
+.then(() => toast('Referral link copied'))
+.catch(() => toast('Unable to copy link. Please copy it manually.'));
+}</WritingBlock>
 
 navigator.clipboard.writeText(referralLink)
 .then(() => toast('Referral link copied'))
