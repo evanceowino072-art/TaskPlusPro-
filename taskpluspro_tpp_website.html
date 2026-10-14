@@ -321,24 +321,7 @@
 
     async function initializeSupabase() {
       try {
-        const response = await fetch('/api/config', { cache: 'no-store' });
-        if (!response.ok) throw new Error('The server could not provide the Supabase configuration.');
-        const config = await response.json();
-        if (!config.supabaseUrl || !config.supabaseKey) throw new Error('Supabase configuration is incomplete.');
-        if (!window.supabase || typeof window.supabase.createClient !== 'function') throw new Error('The Supabase library did not load. Check your internet connection and refresh.');
-        state.supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-        const { data, error } = await state.supabase.auth.getSession();
-        if (error) throw error;
-        state.user = data && data.session ? data.session.user : null;
-        if (state.user) await loadMemberDashboard(state.user, { quiet: true });
-        state.authReady = true;
-        return state.supabase;
-      } catch (error) {
-        state.authReady = false;
-        console.error('TaskPlusPro Supabase initialization error:', error);
-        const intro = $('#accountIntro');
-        if (intro) intro.textContent = 'Account service is temporarily unavailable. Refresh the page or try again later.';
-        return null;
+       
       }
     }
 
@@ -362,7 +345,7 @@
         updateReferralUI();
         return;
       }
-      if (intro) intro.textContent = 'Signed in. Loading the profile information available to your account…';
+      if (intro) intro.textContent = 'Signed in. Loading the profile information available to https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.jsyour account…';
       if (logout) logout.hidden = false;
       if (panel) panel.classList.add('visible');
       $('#profileName').textContent = safeText(user.user_metadata && user.user_metadata.full_name, user.email || 'TPP member');
