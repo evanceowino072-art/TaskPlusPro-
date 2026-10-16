@@ -461,7 +461,7 @@
       const email = (document.getElementById(isClient ? 'tppClientEmail' : 'tppEmail')?.value || '').trim();
       const password = document.getElementById(isClient ? 'tppClientPassword' : 'tppPassword')?.value || '';
       const code = (document.getElementById('tppReferralCode')?.value || readReferralFromUrl()).trim().slice(0, 40);
-      if (!event.currentTarget.reportValidity()) return;
+     if (!event.target.reportValidity()) return;
       if (button) { button.disabled = true; button.textContent = 'Creating account…'; }
       setMessage(messageId, 'Creating your account securely…');
       try {
