@@ -1,8 +1,9 @@
+
 {
   "name": "taskpluspro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "TaskPlusPro web application",
+  "description": "TaskPlusPro website server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -11,7 +12,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "@supabase/supabase-js": "^2"
+    "express": "^4.21.2"
   }
 }
