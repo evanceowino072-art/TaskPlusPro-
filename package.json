@@ -11,7 +11,10 @@
   "engines": {
     "node": ">=18"
   },
+  
+{
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "@supabase/supabase-js": "^2.57.0"
   }
 }
