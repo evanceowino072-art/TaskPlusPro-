@@ -156,7 +156,39 @@ throw error;
 return { shortcode, passkey, callbackUrl };
 }
 
+
 async function getDarajaToken() {
+  const key = process.env.MPESA_CONSUMER_KEY;
+  const secret = process.env.MPESA_CONSUMER_SECRET;
+
+  if (!key || !secret) {
+    const error = new Error(
+      "Daraja sandbox credentials are not configured."
+    );
+    error.status = 503;
+    throw error;
+  }
+
+  const response = await fetch(
+    `${DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`,
+    {
+      headers: {
+        Authorization:
+          "Basic " + Buffer.from(`${key}:${secret}`).toString("base64")
+      },
+      signal: AbortSignal.timeout(15000)
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok || !data.access_token) {
+    throw new Error("Daraja sandbox authentication failed.");
+  }
+
+  return data.access_token;
+}
+{
 const key = process.env.MPESA_CONSUMER_KEY;
 const secret = process.env.MPESA_CONSUMER_SECRET;
 
